@@ -13,13 +13,10 @@ namespace PL_resolution
         {
             Clauses C = new Clauses();
             //add KB to Clauses in CNF form
-            //C.Add(new List<string> { "a", "!b" });//a+!b
-            //C.Add(new List<string> { "b", "!c", "!d" });//b+!c+!d
-            //C.Add(new List<string> { "b", "c", "!d" });//b+c+!d
-            //C.Add(new List<string> { "d" });//d
-            C.Add(new List<string> {"d"});
-            C.Add(new List<string> { "" });
-            C.Add(new List<string> { "" });
+            C.Add(new List<string> { "a", "!b" });//a+!b
+            C.Add(new List<string> { "b", "!c", "!d" });//b+!c+!d
+            C.Add(new List<string> { "b", "c", "!d" });//b+c+!d
+            C.Add(new List<string> { "d" });//d
             List<string> formula = new List<string>() { "!d" }; //define as CNF, KB:=a --> formula/clause = !a to proof nonsatisfaction, 
 
             Console.WriteLine(C.Print());
