@@ -4,18 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PL_resolution
+namespace Heurika_Resolution
 {
-    class Algorithm
+    static class Algorithm
     {
-        public Algorithm()
-        {
-
-        }
-
+        
         //this is complete (see p. 356), but for it to be efficient, we need to guide it towards the empty state,
         //because this algo might take the longest path instead of the shortest..
-        public bool linearResolution(Clauses C, List<string> formula)
+        public static bool linearResolution(Clauses C, List<string> formula)
         {
             C.Add(formula); // C = (KB+formula)
             List<string> R = formula;
@@ -23,9 +19,12 @@ namespace PL_resolution
             Console.WriteLine(C.Print());
             while (R.Any())
             {//At every step we use the previously derived clause and a clause R to derive a new clause.
-                List<string> clause = C.bestClauseViaHeuristics(R); Console.WriteLine("resolution with: " + C.Print(R) + " and " + C.Print(clause));
-                if (clause == null) { return false; }
-                R = resolutionRule(R, clause); Console.WriteLine("= " + C.Print(R));
+                List<string> clause = C.bestClauseViaHeuristics(R);
+                Console.WriteLine("resolution with: " + C.Print(R) + " and " + C.Print(clause));
+                if (clause == null)
+                    return false;
+                R = resolutionRule(R, clause, out int notUsed);
+                Console.WriteLine("= " + C.Print(R));
                 int idxWithSameClause = C.sameClauseAt(R);
                 if (idxWithSameClause > -1)// there is  
                 {
@@ -41,22 +40,74 @@ namespace PL_resolution
             return true;
         }
 
-            //proof by refutation
-            //infer new conclusions
-            //resolution inference rule
+        //it is like Uniform cost search, but we have an ordered queue
+        //path cost is set in problem class..
+        // algo from Book: figure 3.14
+        public static Boolean Astar(Clauses kb, List<string> formula)
+        {
+            //Node node = new Node(problem.initial(), null, null, 0);
+            var node = new Node
+            {
+                Kb = kb,
+                ResolvedClause = formula,
+                Cost = 0
+            };
+            List<Node> frontier = new List<Node>(); //priority queue
+            frontier.Add(node);
+            List<Node> expanded = new List<Node>();
 
-            //input resolution: A = (KB+!a) in CNF. clauses can only be derived using at least one clause from A.
-            //meaning: at every step, we yous the previously derived clause and a new clause from A to derive a new clause.
-            //problem: this procedure is not complete!!So we might never reach the empty clause even if it was possible to derive is using regular resolution (which is complete).
+            while (frontier.Any())
+            {
+                frontier.OrderBy(x => x.Cost); //orders frontier in ascending order
+                node = frontier[0]; //picks the one with lowest value
+                //Console.WriteLine("current node: " + node.State().print());
+                if (node.Kb.allClauses.Count == 0 || frontier.Exists(x => x.ResolvedClause.Count() == 0))
+                {
+                    return true;
+                }
 
-            //therefore use a complete methode, called Linear Resolution  P.356
-            //to do resolution: to get from R0 to R1, take Ci being element of all C AND all previous resolutions.. this makes it complete..
+                frontier.Remove(node);
+                expanded.Add(node);
+                foreach (Node child in node.getChildren())
+                {   //if child state not in frontier and not in expanded
+                    if ((!frontier.Exists(x => x.Kb == child.Kb)))
+                    {
+                        if (!expanded.Exists(x => x.Kb == child.Kb))
+                        {
+                            frontier.Add(child);
+                        }
+                    }
+                    else//here we know that chil is in frontier, as above if failed.
+                    {   //if node already exist in frontier, but child can reach it wirh less cost, then replace node in frontier.
+                        int i = frontier.FindIndex(x => x.Kb == child.Kb);
+                        if (frontier[i].Cost > child.Cost)
+                        {
+                            frontier[i] = child;
+                        }
+                    }
+                }
+            }
+            Console.WriteLine("\n" + "Frontier is empty, no solution found.");
+            return false; //if frontier is empty
+        }
+
+        //proof by refutation
+        //infer new conclusions
+        //resolution inference rule
+
+        //input resolution: A = (KB+!a) in CNF. clauses can only be derived using at least one clause from A.
+        //meaning: at every step, we yous the previously derived clause and a new clause from A to derive a new clause.
+        //problem: this procedure is not complete!!So we might never reach the empty clause even if it was possible to derive is using regular resolution (which is complete).
+
+        //therefore use a complete methode, called Linear Resolution  P.356
+        //to do resolution: to get from R0 to R1, take Ci being element of all C AND all previous resolutions.. this makes it complete..
 
         //takes two clauses and returns a new one
-        public List<string> resolutionRule(List<string> clause1, List<string> clause2)
+        public static List<string> resolutionRule(List<string> clause1, List<string> clause2, out int heursitic)
         {
             List<int> idx1 = new List<int>();
             List<int> idx2 = new List<int>();
+            heursitic = 0;
 
             // find the complementary literals
             for (int i = 0; i < clause1.Count(); i++)
@@ -68,6 +119,7 @@ namespace PL_resolution
                     {
                         idx1.Add(i); // list of indexes which should be deleted out of clause1
                         idx2.Add(j);
+                        heursitic++;
                     }
                 }
             }
@@ -85,7 +137,7 @@ namespace PL_resolution
             return new List<string>(clause1);
         }
 
-        public string negate(string toNegate)
+        public static string negate(string toNegate)
         {
             if (toNegate[0] == '!')
             {

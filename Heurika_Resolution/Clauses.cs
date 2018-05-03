@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PL_resolution
+namespace Heurika_Resolution
 {
     class Clauses
     {
@@ -56,7 +56,6 @@ namespace PL_resolution
         // do the resolution rule -> take two clauses and make one out of them
         //pre: no empty clauses
         //post: resolution done on two clauses, returns one clause
-    
 
         //returns clause containing the searched string
         public int ContainsString(string toFind)
@@ -70,6 +69,7 @@ namespace PL_resolution
             }
             return -1;
         }
+
 
         //returns indes of matched clause, if none, returns -1
         public int sameClauseAt(List<string> clause2)

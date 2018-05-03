@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PL_resolution
+namespace Heurika_Resolution
 {
     class Program
     {
@@ -19,11 +19,12 @@ namespace PL_resolution
             C.Add(new List<string> { "d" });//d
             List<string> formula = new List<string>() { "!a" }; //define as CNF, KB:=a --> formula/clause = !a to proof nonsatisfaction, 
 
-            Console.WriteLine(C.Print());
-            Console.ReadLine();
+            Console.WriteLine(C.Print() + " =: " + formula[0]);
+            //Console.ReadLine();
 
-            Algorithm algo = new Algorithm();
-            bool enumerates = algo.linearResolution(C, new List<string>(formula));
+            //bool enumerates = Algorithm.linearResolution(C, new List<string>(formula));
+
+            bool enumerates = Algorithm.Astar(C, formula);
         
             Console.WriteLine("KB := !"+C.Print(formula)+" is " + enumerates.ToString());
             Console.ReadLine();
