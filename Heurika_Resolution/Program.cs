@@ -17,7 +17,10 @@ namespace Heurika_Resolution
             C.Add(new List<string> { "b", "!c", "!d" });//b+!c+!d
             C.Add(new List<string> { "b", "c", "!d" });//b+c+!d
             C.Add(new List<string> { "d" });//d
-            List<string> formula = new List<string>() { "!a" }; //define as CNF, KB:=a --> formula/clause = !a to proof nonsatisfaction, 
+
+
+            //CHANGE THIS LINE TO CHECK OTHER LITERALS
+            List<string> formula = new List<string>() { "!b" }; //define as CNF, KB:=a --> formula/clause = !a to proof nonsatisfaction, 
 
             Console.WriteLine(C.Print() + " =: " + formula[0]);
             //Console.ReadLine();

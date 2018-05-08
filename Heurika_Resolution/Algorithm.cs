@@ -8,37 +8,6 @@ namespace Heurika_Resolution
 {
     static class Algorithm
     {
-        
-        //this is complete (see p. 356), but for it to be efficient, we need to guide it towards the empty state,
-        //because this algo might take the longest path instead of the shortest..
-        public static bool linearResolution(Clauses C, List<string> formula)
-        {
-            C.Add(formula); // C = (KB+formula)
-            List<string> R = formula;
-            Console.WriteLine("Check if KB := !" + C.Print(formula));
-            Console.WriteLine(C.Print());
-            while (R.Any())
-            {//At every step we use the previously derived clause and a clause R to derive a new clause.
-                List<string> clause = C.bestClauseViaHeuristics(R);
-                Console.WriteLine("resolution with: " + C.Print(R) + " and " + C.Print(clause));
-                if (clause == null)
-                    return false;
-                R = resolutionRule(R, clause, out int notUsed);
-                Console.WriteLine("= " + C.Print(R));
-                int idxWithSameClause = C.sameClauseAt(R);
-                if (idxWithSameClause > -1)// there is  
-                {
-                    Console.WriteLine("Same clause at " + (idxWithSameClause + 1).ToString() + ", don't add it again");
-                }
-                else
-                {
-                    C.Add(R); Console.WriteLine(C.Print(R) + " is added to KB");// resulting clause is not in Clauses yet, so add it..
-                }
-                Console.WriteLine(C.Print());
-            }
-            Console.WriteLine("empty clause in KB");
-            return true;
-        }
 
         //it is like Uniform cost search, but we have an ordered queue
         //path cost is set in problem class..
@@ -55,11 +24,13 @@ namespace Heurika_Resolution
             List<Node> frontier = new List<Node>(); //priority queue
             frontier.Add(node);
             List<Node> expanded = new List<Node>();
+            var index = 0;
 
             while (frontier.Any())
             {
                 frontier.OrderBy(x => x.Cost); //orders frontier in ascending order
                 node = frontier[0]; //picks the one with lowest value
+                Console.WriteLine(node.Kb.Print() + " =: " + node.Kb.Print(node.ResolvedClause));
                 //Console.WriteLine("current node: " + node.State().print());
                 if (node.Kb.allClauses.Count == 0 || frontier.Exists(x => x.ResolvedClause.Count() == 0))
                 {
@@ -119,7 +90,6 @@ namespace Heurika_Resolution
                     {
                         idx1.Add(i); // list of indexes which should be deleted out of clause1
                         idx2.Add(j);
-                        heursitic++;
                     }
                 }
             }
@@ -134,6 +104,7 @@ namespace Heurika_Resolution
             }
             clause1.AddRange(clause2);
             clause1 = clause1.Distinct().ToList(); //makes (a + a + b)=> (a + b)
+            heursitic = clause1.Count;
             return new List<string>(clause1);
         }
 
